@@ -131,6 +131,8 @@ function HomeScreen({ navigation }) {
       nextImage = require('./assets/humanPicture2.png');
     }else if(imageSource === require('./assets/humanPicture2.png')){
       nextImage = require('./assets/humanPicture.png');
+    }else if(imageSource === require('./assets/humanPicture3.png')){
+      nextImage = require('./assets/humanPicture4.png');
     }else{
       nextImage = require('./assets/humanPicture3.png');
     }
@@ -145,6 +147,8 @@ function HomeScreen({ navigation }) {
       nextImage = require('./assets/humanPicture.png');
     }else if(imageSource === require('./assets/humanPicture.png')){
       nextImage = require('./assets/humanPicture4.png');
+    }else if(imageSource === require('./assets/humanPicture3.png')){
+      nextImage = require('./assets/humanPicture2.png');
     }else{
       nextImage = require('./assets/humanPicture3.png');
     }
