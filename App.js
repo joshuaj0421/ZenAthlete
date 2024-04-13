@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, Button } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, Button, TextInput, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -71,7 +71,7 @@ function RecoveryScreen({ route, navigation }) {
     const { data, error } = await supabase
       .from('users')
       .insert([
-        { user_id: '12345', muscle_group: part, recovery_method: method.method }
+        { user_id: userID, muscle_group: part, recovery_method: method.method }
       ]);
   
     if (error) {
@@ -117,12 +117,119 @@ function RecoveryScreen({ route, navigation }) {
   );
 }
 
+function LoginScreen({ navigation }) {
+  const [userId, setUserId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  const fetchUserName = async (userId) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('userdetails')
+        .select('name')
+        .eq('user_id', userId)
+        .maybeSingle();
+  
+      if (error) {
+        console.error('Error fetching user:', error);
+        alert('Failed to fetch user details.');
+      } else if (data) {
+        setUserName(data.name);
+        setTimeout(() => {
+          navigation.navigate('Home', { userId, name: data.name });
+        }, 3000);
+      } else {
+        // No user found, prompt to enter name
+        Alert.prompt(
+          'New User',
+          'Enter your name:',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => console.log('User creation cancelled'),
+            },
+            {
+              text: 'OK',
+              onPress: (name) => createNewUser(userId, name),
+            },
+          ],
+          'plain-text'
+        );
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      alert('An unexpected error occurred.');
+    } finally {
+      setLoading(false); // Ensures loading is always turned off
+    }
+  };
+
+  const createNewUser = async (userId, name) => {
+    if (!name.trim()) {
+      alert('Please enter a valid name.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('userdetails')
+        .insert([{ user_id: userId, name: name }]);
+  
+      if (error) {
+        console.error('Error creating new user:', error);
+        alert('Failed to create new user.');
+      } else {
+        setUserName(name);
+        setTimeout(() => {
+          navigation.navigate('Home', { userId, name });
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Unexpected error when creating user:', error);
+      alert('An unexpected error occurred while creating user.');
+    } finally {
+      setLoading(false); // Ensures loading is always turned off
+    }
+  };
+
+
+  const handleLogin = () => {
+    if (userId.trim())
+    {
+      fetchUserName(userId);
+    }
+    else{
+      alert('Please enter a valid User ID');
+    }
+  };
+
+  return (
+    <View style={styles.loginContainer}>
+    <Text style={styles.loginTitle}>Enter Your User ID</Text>
+    <TextInput
+      style={styles.input}
+      onChangeText={setUserId}
+      value={userId}
+      placeholder="User ID"
+      keyboardType="numeric"
+    />
+    <Button title="Enter" onPress={handleLogin} disabled={loading} />
+    {loading && <ActivityIndicator size="large" color="#0000ff" />}
+    {userName && <Text>Welcome, {userName}!</Text>}
+  </View>
+  )
+}
+
 let partsPressed = [];
 let shift = 0;
+let userID = "";
 
-function HomeScreen({ navigation }) {
+function HomeScreen({ route, navigation }) {
   const [imageSource, setImageSource] = useState(require('./assets/humanPicture.png'));
   const [selectedParts, setSelectedParts] = useState('');
+  userID = route.params?.userId;
 
   const handleRecovery = () => {
     console.log('Attempting to navigate to Recovery');
@@ -218,7 +325,12 @@ const Tab = createBottomTabNavigator();
 
 function HomeStackScreen() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="Login">
+      <Stack.Screen 
+        name="Login" 
+        component={LoginScreen}
+        options={{ title: 'Login' }}
+      />
       <Stack.Screen 
         name="Home" 
         component={HomeScreen} 
@@ -394,5 +506,22 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 18,
     marginBottom: 20,
-  }
+  },
+  loginContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  loginTitle: {
+    fontSize: 24,
+    marginBottom: 20,
+  },
+  input: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+    width: '80%',
+  },
 });
