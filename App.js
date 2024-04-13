@@ -68,25 +68,31 @@ function RecoveryScreen({ route, navigation }) {
 
   const handleMethodPress = async (part, method) => {
     Alert.alert(`You selected ${method.method} for ${part}`);
-    const {data, error} = await supabase
+    const { data, error } = await supabase
       .from('users')
       .insert([
-        {muscle_group: part, recovery_method: method.method}
+        { muscle_group: part, recovery_method: method.method }
       ]);
-
+  
     if (error) {
       console.error('Failed to insert recovery method:', error);
+    } else {
+      // Assuming you have a way to get the description of the method, you would pass it here
+      navigation.navigate('MethodDescription', {
+        part: part,
+        method: method.method,
+        description: "Here is how you perform the method: ..." // You need to provide this from your data
+      });
     }
-
-    
+  
     fetchTopRecoveryMethodsForParts(partsPressed)
       .then(setRecoveryMethods)
       .catch(err => {
         console.error('Failed to fetch recovery methods:', err);
         setRecoveryMethods({});
       });
-  
   }
+  
 
   return (
     <View style={styles.container}>
@@ -107,7 +113,6 @@ function RecoveryScreen({ route, navigation }) {
       ) : (
         <Text>No recovery methods to display.</Text>
       )}
-      <Button title="Go Back" onPress={() => navigation.goBack()} />
     </View>
   );
 }
@@ -206,9 +211,31 @@ const Tab = createBottomTabNavigator();
 function HomeStackScreen() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Recovery" component={RecoveryScreen} />
+      <Stack.Screen 
+        name="Home" 
+        component={HomeScreen} 
+      />
+      <Stack.Screen 
+        name="Recovery" 
+        component={RecoveryScreen} 
+      />
+      <Stack.Screen 
+        name="MethodDescription" 
+        component={RecoveryMethodDescriptionScreen} 
+      />
     </Stack.Navigator>
+  );
+}
+
+
+function RecoveryMethodDescriptionScreen({ route }) {
+  const { part, method, description } = route.params;
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{method}</Text>
+      <Text style={styles.description}>{description}</Text>
+    </View>
   );
 }
 
@@ -332,5 +359,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  description: {
+    fontSize: 18,
+    marginBottom: 20,
   }
 });
