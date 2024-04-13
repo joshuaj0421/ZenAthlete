@@ -22,28 +22,28 @@ async function fetchTopRecoveryMethodsForParts(parts) {
 
       if (error) {
         console.error(`Error fetching recovery methods for ${part}:`, error);
-        continue;  // Skip to the next part if there's an error
+        continue;
       }
 
       const recoveryCount = data.reduce((acc, item) => {
-        acc[item.recovery_method] = (acc[item.recovery_method] || 0) + 1;
+        acc[item.recovery_method] = acc[item.recovery_method] || { count: 0, description: methodDescriptions[item.recovery_method] };
+        acc[item.recovery_method].count++;
         return acc;
       }, {});
 
-      const topThreeMethods = Object.entries(recoveryCount)
-        .sort((a, b) => b[1] - a[1])  // Sort by count descending
-        .slice(0, 3)
-        .map(([method, count]) => ({ method, count }));
-
-      results[part] = topThreeMethods;
+      results[part] = Object.entries(recoveryCount).map(([method, { count, description }]) => ({
+        method,
+        count,
+        description  // Now including description from predefined object
+      })).sort((a, b) => b.count - a.count).slice(0, 3);
     }
-
     return results;
   } catch (err) {
     console.error('Unexpected error:', err);
     return {};
   }
 }
+
 
 const getStars = (index) => {
   if (index === 0) return '★★★★★';
@@ -71,7 +71,7 @@ function RecoveryScreen({ route, navigation }) {
     const { data, error } = await supabase
       .from('users')
       .insert([
-        { muscle_group: part, recovery_method: method.method }
+        { user_id: '12345', muscle_group: part, recovery_method: method.method }
       ]);
   
     if (error) {
@@ -81,7 +81,7 @@ function RecoveryScreen({ route, navigation }) {
       navigation.navigate('MethodDescription', {
         part: part,
         method: method.method,
-        description: "Here is how you perform the method: ..." // You need to provide this from your data
+        description: method.description // You need to provide this from your data
       });
     }
   
@@ -242,6 +242,25 @@ function RecoveryMethodDescriptionScreen({ route }) {
     </View>
   );
 }
+
+const methodDescriptions = {
+  "Hot/Cold therapy": "Hot/Cold Therapy involves alternating hot and cold temperatures to reduce inflammation and improve circulation. Apply a heat pack for 3-5 minutes followed by an ice pack for the same duration, repeating several times.",
+  "Massage therapy": "Massage therapy helps relax muscle tissue, reduce pain, and increase circulation. Schedule regular sessions focusing on affected areas to help release tension and promote recovery.",
+  "Stretching": "Stretching exercises improve muscle elasticity and achieve comfortable muscle tone. Incorporate a routine of dynamic stretches before activities and static stretches after to maximize benefits.",
+  "Electrotherapy": "Electrotherapy uses electrical energy for medical treatment, such as pain relief and promoting healing. Use devices like TENS units for sessions of 15-30 minutes to alleviate pain and enhance tissue repair.",
+  "Active recovery": "Active recovery involves light physical activity that doesn't stress the body, instead helping to reduce stiffness and speed up muscle recovery. Engage in low-impact activities such as walking or gentle cycling for 20-30 minutes the day after intense exercise.",
+  "Sleep": "Sleep is essential for physical and mental recovery, allowing the body to repair itself and consolidate memories. Aim for 7-9 hours of quality sleep per night, maintaining a consistent bedtime and wake-up schedule.",
+  "Hydrotherapy": "Hydrotherapy utilizes water's therapeutic properties to treat various conditions and boost recovery. Try alternating between hot and cold showers or soaking in a whirlpool bath to relieve muscle soreness.",
+  "Yoga": "Yoga combines physical postures, breathing exercises, and meditation to enhance flexibility and reduce stress. Practice yoga for at least 30 minutes daily, focusing on poses that target your specific areas of tension.",
+  "Nutrition": "Nutrition plays a critical role in muscle recovery and overall health. Consume a balanced diet rich in proteins, healthy fats, and carbohydrates, and time your meals to support energy levels and recovery.",
+  "Compression therapy": "Compression therapy involves wearing specially designed garments that help improve circulation and reduce swelling. Use compression clothing during and after workouts to minimize muscle fatigue and accelerate recovery.",
+  "Foam rolling": "Foam rolling helps release muscle tightness and improve blood flow. Spend 5-10 minutes daily rolling out major muscle groups, focusing on areas that feel particularly tight.",
+  "Contrast therapy": "Contrast therapy combines hot and cold treatments to enhance recovery by flushing out toxins and promoting blood flow. Alternate between hot and cold immersions for 1-2 minutes each for a total of 15 minutes.",
+  "Hydration": "Hydration is crucial for optimal body function, especially to compensate for fluid loss during exercise. Drink at least 8-10 glasses of water daily, more if you are active, to maintain hydration levels.",
+  "Breathing excersizes": "Breathing exercises can help reduce stress and improve oxygen delivery to muscles. Practice techniques like diaphragmatic breathing for 10-15 minutes daily to enhance relaxation and recovery."
+  // Add more methods and their descriptions as needed
+};
+
 
 export default function App() {
   return (
