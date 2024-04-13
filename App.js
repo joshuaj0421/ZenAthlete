@@ -45,7 +45,12 @@ async function fetchTopRecoveryMethodsForParts(parts) {
   }
 }
 
-
+const getStars = (index) => {
+  if (index === 0) return '★★★★★';
+  if (index === 1) return '★★★★☆';
+  if (index === 2) return '★★★☆☆';
+  return '';
+}
 
 function RecoveryScreen({ route, navigation }) {
   const { partsPressed } = route.params || { partsPressed: [] };
@@ -61,6 +66,28 @@ function RecoveryScreen({ route, navigation }) {
       });
   }, [partsPressed]);
 
+  const handleMethodPress = async (part, method) => {
+    Alert.alert(`You selected ${method.method} for ${part}`);
+    const {data, error} = await supabase
+      .from('users')
+      .insert([
+        {muscle_group: part, recovery_method: method.method}
+      ]);
+
+    if (error) {
+      console.error('Failed to insert recovery method:', error);
+    }
+
+    
+    fetchTopRecoveryMethodsForParts(partsPressed)
+      .then(setRecoveryMethods)
+      .catch(err => {
+        console.error('Failed to fetch recovery methods:', err);
+        setRecoveryMethods({});
+      });
+  
+  }
+
   return (
     <View style={styles.container}>
       <Text>Top Recovery Methods for Selected Muscle Groups</Text>
@@ -69,7 +96,11 @@ function RecoveryScreen({ route, navigation }) {
           <View key={part}>
             <Text style={styles.partTitle}>{part}:</Text>
             {methods.map((method, index) => (
-              <Text key={index}>{method.method} - Counted {method.count} times</Text>
+              <Button 
+                key={index}
+                title = {`${method.method} - Selected ${method.count} times ${getStars(index)}`}
+                onPress = {() => handleMethodPress(part,method)}
+              />
             ))}
           </View>
         ))
