@@ -73,7 +73,7 @@ function RecoveryScreen({ route, navigation }) {
       .insert([
         { user_id: userID, muscle_group: part, recovery_method: method.method }
       ]);
-  
+
     if (error) {
       console.error('Failed to insert recovery method:', error);
     } else {
@@ -84,7 +84,7 @@ function RecoveryScreen({ route, navigation }) {
         description: method.description // You need to provide this from your data
       });
     }
-  
+
     fetchTopRecoveryMethodsForParts(partsPressed)
       .then(setRecoveryMethods)
       .catch(err => {
@@ -92,7 +92,7 @@ function RecoveryScreen({ route, navigation }) {
         setRecoveryMethods({});
       });
   }
-  
+
 
   return (
     <View style={styles.container}>
@@ -102,10 +102,10 @@ function RecoveryScreen({ route, navigation }) {
           <View key={part}>
             <Text style={styles.partTitle}>{part}:</Text>
             {methods.map((method, index) => (
-              <Button 
+              <Button
                 key={index}
-                title = {`${method.method} - Selected ${method.count} times ${getStars(index)}`}
-                onPress = {() => handleMethodPress(part,method)}
+                title={`${method.method} - Selected ${method.count} times ${getStars(index)}`}
+                onPress={() => handleMethodPress(part, method)}
               />
             ))}
           </View>
@@ -130,7 +130,7 @@ function LoginScreen({ navigation }) {
         .select('name')
         .eq('user_id', userId)
         .maybeSingle();
-  
+
       if (error) {
         console.error('Error fetching user:', error);
         alert('Failed to fetch user details.');
@@ -176,7 +176,7 @@ function LoginScreen({ navigation }) {
       const { error } = await supabase
         .from('userdetails')
         .insert([{ user_id: userId, name: name }]);
-  
+
       if (error) {
         console.error('Error creating new user:', error);
         alert('Failed to create new user.');
@@ -196,29 +196,28 @@ function LoginScreen({ navigation }) {
 
 
   const handleLogin = () => {
-    if (userId.trim())
-    {
+    if (userId.trim()) {
       fetchUserName(userId);
     }
-    else{
+    else {
       alert('Please enter a valid User ID');
     }
   };
 
   return (
     <View style={styles.loginContainer}>
-    <Text style={styles.loginTitle}>Enter Your User ID</Text>
-    <TextInput
-      style={styles.input}
-      onChangeText={setUserId}
-      value={userId}
-      placeholder="User ID"
-      keyboardType="numeric"
-    />
-    <Button title="Enter" onPress={handleLogin} disabled={loading} />
-    {loading && <ActivityIndicator size="large" color="#0000ff" />}
-    {userName && <Text>Welcome, {userName}!</Text>}
-  </View>
+      <Text style={styles.loginTitle}>Enter Your User ID</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={setUserId}
+        value={userId}
+        placeholder="User ID"
+        keyboardType="numeric"
+      />
+      <Button title="Enter" onPress={handleLogin} disabled={loading} />
+      {loading && <ActivityIndicator size="large" color="#0000ff" />}
+      {userName && <Text>Welcome, {userName}!</Text>}
+    </View>
   )
 }
 
@@ -240,13 +239,13 @@ function HomeScreen({ route, navigation }) {
     console.log('Bicep pressed');
     // Toggle the image source
     let nextImage;
-    if(imageSource === require('./assets/humanPicture.png')){
+    if (imageSource === require('./assets/humanPicture.png')) {
       nextImage = require('./assets/humanPicture2.png');
-    }else if(imageSource === require('./assets/humanPicture2.png')){
+    } else if (imageSource === require('./assets/humanPicture2.png')) {
       nextImage = require('./assets/humanPicture.png');
-    }else if(imageSource === require('./assets/humanPicture3.png')){
+    } else if (imageSource === require('./assets/humanPicture3.png')) {
       nextImage = require('./assets/humanPicture4.png');
-    }else{
+    } else {
       nextImage = require('./assets/humanPicture3.png');
     }
     setImageSource(nextImage);
@@ -256,13 +255,13 @@ function HomeScreen({ route, navigation }) {
   const handleChestPress = () => {
     console.log('Chest pressed');
     // Toggle the image source
-    if(imageSource === require('./assets/humanPicture4.png')){
+    if (imageSource === require('./assets/humanPicture4.png')) {
       nextImage = require('./assets/humanPicture.png');
-    }else if(imageSource === require('./assets/humanPicture.png')){
+    } else if (imageSource === require('./assets/humanPicture.png')) {
       nextImage = require('./assets/humanPicture4.png');
-    }else if(imageSource === require('./assets/humanPicture3.png')){
+    } else if (imageSource === require('./assets/humanPicture3.png')) {
       nextImage = require('./assets/humanPicture2.png');
-    }else{
+    } else {
       nextImage = require('./assets/humanPicture3.png');
     }
     setImageSource(nextImage);
@@ -312,10 +311,50 @@ function HomeScreen({ route, navigation }) {
 
 
 function SettingsScreen() {
+  const [historyData, setHistoryData] = useState([]);
+
+  useEffect(() => {
+    // Fetch history data from Supabase or any other data source
+    fetchHistoryData()
+      .then(setHistoryData)
+      .catch(error => {
+        console.error('Failed to fetch history data:', error);
+        setHistoryData([]);
+      });
+  }, []);
+
+  const fetchHistoryData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('user_id, muscle_group, recovery_method')
+        .eq('user_id', userID);
+
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      throw new Error('Failed to fetch history data');
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text>History</Text>
-      <StatusBar style="auto" />
+      <Text>
+        <Text style={styles.title}>User Recovery History</Text> {/* Changed text here */}
+      </Text>
+      {historyData.length > 0 ? (
+        historyData.map((item, index) => (
+          <View key={index} style={styles.historyItem}>
+            <Text>Muscle Group: {item.muscle_group}</Text>
+            <Text>Recovery Method: {item.recovery_method}</Text>
+          </View>
+        ))
+      ) : (
+        <Text>No history data available.</Text>
+      )}
     </View>
   );
 }
@@ -326,22 +365,22 @@ const Tab = createBottomTabNavigator();
 function HomeStackScreen() {
   return (
     <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen 
-        name="Login" 
+      <Stack.Screen
+        name="Login"
         component={LoginScreen}
         options={{ title: 'Login' }}
       />
-      <Stack.Screen 
-        name="Home" 
-        component={HomeScreen} 
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
       />
-      <Stack.Screen 
-        name="Recovery" 
-        component={RecoveryScreen} 
+      <Stack.Screen
+        name="Recovery"
+        component={RecoveryScreen}
       />
-      <Stack.Screen 
-        name="MethodDescription" 
-        component={RecoveryMethodDescriptionScreen} 
+      <Stack.Screen
+        name="MethodDescription"
+        component={RecoveryMethodDescriptionScreen}
       />
     </Stack.Navigator>
   );
@@ -378,6 +417,7 @@ const methodDescriptions = {
 };
 
 
+
 export default function App() {
   return (
     <NavigationContainer>
@@ -412,7 +452,7 @@ const styles = StyleSheet.create({
     left: 295, // Adjust this to align with the bicep horizontally
     width: 50, // Width of the tappable area
     height: 40, // Height of the tappable area
-    backgroundColor: 'rgba(255, 0, 0, 0.5)', // Changed to green for better visibility
+    backgroundColor: 'rgba(255, 255, 255, 0)', // Changed to green for better visibility
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -422,7 +462,7 @@ const styles = StyleSheet.create({
     left: 150, // Adjust this to align with the bicep horizontally
     width: 50, // Width of the tappable area
     height: 40, // Height of the tappable area
-    backgroundColor: 'rgba(255, 0, 0, 0.5)', // Changed to green for better visibility
+    backgroundColor: 'rgba(255, 255, 255, 0)', // Changed to green for better visibility
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -432,7 +472,7 @@ const styles = StyleSheet.create({
     left: 210, // Adjust this to align with the bicep horizontally
     width: 75, // Width of the tappable area
     height: 60, // Height of the tappable area
-    backgroundColor: 'rgba(0, 0, 255, 0.5)', // Changed to green for better visibility
+    backgroundColor: 'rgba(255, 255, 255, 0)', // Changed to green for better visibility
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -448,7 +488,7 @@ const styles = StyleSheet.create({
     left: 215, // Adjust this to align with the bicep horizontally
     width: 70, // Width of the tappable area
     height: 60, // Height of the tappable area
-    backgroundColor: 'rgba(12, 125, 125, 0.5)', // Changed to green for better visibility
+    backgroundColor: 'rgba(0, 0, 0, 0)', // Changed to green for better visibility
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -502,6 +542,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+  },
+  title: {
+    fontSize: 24, // Adjust font size as needed
+    fontWeight: 'bold', // Make the text bold
   },
   description: {
     fontSize: 18,
