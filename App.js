@@ -53,6 +53,7 @@ const getStars = (index) => {
   return '';
 }
 
+
 function RecoveryScreen({ route, navigation }) {
   const { partsPressed } = route.params || { partsPressed: [] };
   const [recoveryMethods, setRecoveryMethods] = useState({});
@@ -78,7 +79,6 @@ function RecoveryScreen({ route, navigation }) {
     if (error) {
       console.error('Failed to insert recovery method:', error);
     } else {
-      // Assuming you have a way to get the description of the method, you would pass it here
       navigation.navigate('MethodDescription', {
         part: part,
         method: method.method,
@@ -94,25 +94,25 @@ function RecoveryScreen({ route, navigation }) {
       });
   }
 
-
   return (
     <View style={styles.container}>
-      <Text>Top Recovery Methods for Selected Muscle Groups</Text>
+      <Text style={styles.title}>Top Recovery Methods for Selected Muscle Groups</Text>
       {Object.keys(recoveryMethods).length > 0 ? (
         Object.entries(recoveryMethods).map(([part, methods]) => (
-          <View key={part}>
-            <Text style={styles.partTitle}>{part}:</Text>
+          <View key={part} style={styles.card}>
+            <Text style={styles.partTitle}>{part}</Text>
             {methods.map((method, index) => (
               <Button
                 key={index}
                 title={`${method.method} - Selected ${method.count} times ${getStars(index)}`}
                 onPress={() => handleMethodPress(part, method)}
+                color="#5E8B7E"
               />
             ))}
           </View>
         ))
       ) : (
-        <Text>No recovery methods to display.</Text>
+        <Text style={styles.placeholder}>No recovery methods to display.</Text>
       )}
     </View>
   );
@@ -446,6 +446,22 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#f9f9f9', // Light grey background to keep focus on cards
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 20,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 4,
+  },
   descriptionContainer: {
     backgroundColor: 'white',
     padding: 20,
@@ -681,4 +697,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingTop: 50,
   },
+  
 });
