@@ -104,7 +104,7 @@ function HomeScreen({ navigation }) {
       nextImage = require('./assets/humanPicture3.png');
     }
     setImageSource(nextImage);
-    addOrRemoveBodyPart('Bicep');
+    addOrRemoveBodyPart('Arms');
   };
 
   const handleChestPress = () => {
