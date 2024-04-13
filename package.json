@@ -11,6 +11,7 @@
   "dependencies": {
     "@react-navigation/bottom-tabs": "^6.5.20",
     "@react-navigation/native": "^6.1.17",
+    "@react-navigation/native-stack": "^6.9.26",
     "@react-navigation/stack": "^6.3.29",
     "@supabase/supabase-js": "^2.42.3",
     "expo": "^50.0.15",

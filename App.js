@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, Button, TextInput, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -325,10 +325,11 @@ function SettingsScreen() {
 
   const fetchHistoryData = async () => {
     try {
+      // Assuming userID is defined somewhere in your context or state
       const { data, error } = await supabase
         .from('users')
         .select('user_id, muscle_group, recovery_method')
-        .eq('user_id', userID);
+        .eq('user_id', userID); // Ensure userID is available
 
       if (error) {
         throw error;
@@ -340,11 +341,19 @@ function SettingsScreen() {
     }
   };
 
-  fetchHistoryData().then(setHistoryData)
-  .catch(error => {
-    console.error('Failed to fetch history data:', error);
-    setHistoryData([]);
-  });
+  useFocusEffect(
+    useCallback(() => {
+      fetchHistoryData().then(setHistoryData)
+      .catch(error => {
+        console.error('Failed to fetch history data:', error);
+        setHistoryData([]);
+      });
+
+      return () => {
+        // Cleanup if necessary
+      };
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
