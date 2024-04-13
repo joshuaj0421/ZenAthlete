@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Alert , Button} from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, Button } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -46,24 +46,39 @@ async function countMuscleGroupsAndRecoveryMethods() {
 
 countMuscleGroupsAndRecoveryMethods();
 
+let partsPressed = [];
+
 function HomeScreen() {
   const [imageSource, setImageSource] = useState(require('./assets/humanPicture.png'));
   const [showButtons, setShowButtons] = useState(false);  // New state for controlling button visibility
 
-  const handlePress = () => {
+  const handleBicepPress = () => {
+    console.log('Bicep pressed');
     // Toggle the image source
     const nextImage = imageSource === require('./assets/humanPicture.png')
       ? require('./assets/humanPicture2.png')
       : require('./assets/humanPicture.png');
     setImageSource(nextImage);
+    addOrRemoveBodyPart('Bicep');
   };
 
-  const toggleButtons = () => {
-    setShowButtons(!showButtons);  // Toggle the visibility of the buttons
-  };
+  const handleChestPress = () => {
+    console.log('Chest pressed');
+    addOrRemoveBodyPart('Chest');
+  }
+
+  const handleAbPress = () => {
+    console.log('Abs pressed');
+    addOrRemoveBodyPart('Abs');
+  }
+
+  const handleRecovery = () => {
+    console.log('Recovery list')
+  }
 
   return (
     <View style={styles.container}>
+      <Text style={styles.selectedText}>Selected</Text>
       <View style={styles.imageContainer}>
         <Image
           source={imageSource}
@@ -73,21 +88,27 @@ function HomeScreen() {
         {/* Touchable area for the right bicep, toggles buttons */}
         <TouchableOpacity
           style={styles.rightBicep}
-          onPress={toggleButtons}
+          onPress={handleBicepPress}
         />
         {/* Other touchable areas change the image */}
         <TouchableOpacity
           style={styles.leftBicep}
-          onPress={handlePress}
+          onPress={handleBicepPress}
         />
         <TouchableOpacity
           style={styles.chest}
-          onPress={handlePress}
+          onPress={handleChestPress}
         />
         <TouchableOpacity
           style={styles.abs}
-          onPress={handlePress}
+          onPress={handleAbPress}
         />
+        <TouchableOpacity
+          style={styles.recovery}
+          onPress={handleRecovery}
+        >
+          <Text style={styles.buttonText}>Recovery</Text>
+        </TouchableOpacity>
       </View>
       {/* Conditional rendering of buttons based on state */}
       {showButtons && (
@@ -102,13 +123,28 @@ function HomeScreen() {
   );
 }
 
+function addOrRemoveBodyPart(part) {
+  let index = partsPressed.indexOf(part); // Check if the body part exists in the list
 
+  if (index !== -1) {
+    // If the body part exists, remove it
+    partsPressed.splice(index, 1);
+  } else {
+    // If the body part doesn't exist, add it
+    partsPressed.push(part);
+  }
+  displayParts();
+}
+
+function displayParts(){
+  
+}
 
 
 function SettingsScreen() {
   return (
     <View style={styles.container}>
-      <Text>Settings</Text>
+      <Text>History</Text>
       <StatusBar style="auto" />
     </View>
   );
@@ -154,17 +190,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  leftBicep:{
+  leftBicep: {
     position: 'absolute',
     top: 380, // Adjust this to move the button over the bicep
     left: 150, // Adjust this to align with the bicep horizontally
     width: 50, // Width of the tappable area
     height: 40, // Height of the tappable area
-    backgroundColor: 'rgba(0, 255, 0, 0.5)', // Changed to green for better visibility
+    backgroundColor: 'rgba(255, 0, 0, 0.5)', // Changed to green for better visibility
     justifyContent: 'center',
-    alignItems: 'center', 
+    alignItems: 'center',
   },
-  chest:{
+  chest: {
     position: 'absolute',
     top: 380, // Adjust this to move the button over the bicep
     left: 210, // Adjust this to align with the bicep horizontally
@@ -172,7 +208,7 @@ const styles = StyleSheet.create({
     height: 60, // Height of the tappable area
     backgroundColor: 'rgba(0, 0, 255, 0.5)', // Changed to green for better visibility
     justifyContent: 'center',
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   buttonsContainer: {
     width: '100%', // Take the full width of the screen
@@ -180,7 +216,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20, // Add some margin at the top to separate from the image
   },
-  abs:{
+  abs: {
     position: 'absolute',
     top: 440, // Adjust this to move the button over the bicep
     left: 215, // Adjust this to align with the bicep horizontally
@@ -188,6 +224,30 @@ const styles = StyleSheet.create({
     height: 60, // Height of the tappable area
     backgroundColor: 'rgba(12, 125, 125, 0.5)', // Changed to green for better visibility
     justifyContent: 'center',
-    alignItems: 'center', 
+    alignItems: 'center',
+  },
+  recovery: {
+    position: 'absolute',
+    top: 740, // Adjust this to move the button over the bicep
+    left: 165, // Adjust this to align with the bicep horizontally
+    width: 170, // Width of the tappable area
+    height: 60, // Height of the tappable area
+    borderRadius: 25,
+    backgroundColor: 'rgba(12, 125, 125, 0.5)', // Changed to green for better visibility
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white', // Text color
+    fontSize: 18, // Adjust the font size as needed
+    fontWeight: 'bold', // Make the text bold
+  },
+  selectedText: {
+    fontSize: 24, // Adjust the font size as needed
+    fontWeight: 'bold', // Make the text bold
+    marginBottom: 20, // Optional spacing
+    position: 'absolute', // Position the text absolutely
+    top: 20, // Adjust the distance from the top
+    left: 150, // Adjust the distance from the left
   }
 });
