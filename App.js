@@ -340,6 +340,12 @@ function SettingsScreen() {
     }
   };
 
+  fetchHistoryData().then(setHistoryData)
+  .catch(error => {
+    console.error('Failed to fetch history data:', error);
+    setHistoryData([]);
+  });
+
   return (
     <View style={styles.container}>
       <Text>
