@@ -136,6 +136,8 @@ function HomeScreen({ navigation }) {
       nextImage = require('./assets/humanPicture2.png');
     }else if(imageSource === require('./assets/humanPicture2.png')){
       nextImage = require('./assets/humanPicture.png');
+    }else if(imageSource === require('./assets/humanPicture3.png')){
+      nextImage = require('./assets/humanPicture4.png');
     }else{
       nextImage = require('./assets/humanPicture3.png');
     }
@@ -150,6 +152,8 @@ function HomeScreen({ navigation }) {
       nextImage = require('./assets/humanPicture.png');
     }else if(imageSource === require('./assets/humanPicture.png')){
       nextImage = require('./assets/humanPicture4.png');
+    }else if(imageSource === require('./assets/humanPicture3.png')){
+      nextImage = require('./assets/humanPicture2.png');
     }else{
       nextImage = require('./assets/humanPicture3.png');
     }
@@ -182,8 +186,8 @@ function HomeScreen({ navigation }) {
       <Text style={styles.selectedText}>Selected</Text>
       <View style={styles.imageContainer}>
         <Image source={imageSource} style={styles.image} resizeMode="contain" />
-        {/* FIX THIS SHIT IT DOESNT GO BACK TO THE ORIGINAL IMAGE */}
         <TouchableOpacity style={styles.rightBicep} onPress={() => handleBicepPress()} />
+        <TouchableOpacity style={styles.leftBicep} onPress={() => handleBicepPress()} />
         <TouchableOpacity style={styles.chest} onPress={() => handleChestPress()} />
         <TouchableOpacity style={styles.abs} onPress={() => addOrRemoveBodyPart("Core")} />
         <TouchableOpacity style={styles.recovery} onPress={handleRecovery}>
