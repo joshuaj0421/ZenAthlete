@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, Button } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
@@ -11,33 +11,75 @@ const supabaseUrl = 'https://ikbcsybkxkhxqwngczum.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrYmNzeWJreGtoeHF3bmdjenVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI5NzE5NjUsImV4cCI6MjAyODU0Nzk2NX0.3PsDDeA0eDU3654oOrkx8nujxEZQW66EGu7ZvwGwgJ4';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function countMuscleGroupsAndRecoveryMethods() {
-    try {
-        const { data, error } = await supabase.from('users').select('muscle_group, recovery_method');
-        if (error) {
-            console.error('Error:', error);
-            return;
-        }
-        const countMap = new Map();
-        data.forEach(item => {
-            const key = `${item.muscle_group}:${item.recovery_method}`;
-            if (countMap.has(key)) {
-                countMap.set(key, countMap.get(key) + 1);
-            } else {
-                countMap.set(key, 1);
-            }
-        });
-        const result = Array.from(countMap, ([key, value]) => {
-            const [muscle_group, recovery_method] = key.split(':');
-            return { muscle_group, recovery_method, count: value };
-        });
-        console.log('Count of each muscle group and recovery method combination:', result);
-    } catch (err) {
-        console.error('Unexpected error:', err);
-    }
+async function fetchTopRecoveryMethodsForParts(parts) {
+  try {
+      const results = {};
+      for (const part of parts) {
+          const { data, error } = await supabase
+              .from('users')
+              .select('recovery_method')
+              .eq('muscle_group', part);
+
+          if (error) {
+              console.error(`Error fetching recovery methods for ${part}:`, error);
+              continue;  // Skip to the next part if there's an error
+          }
+
+          const recoveryCount = data.reduce((acc, item) => {
+              acc[item.recovery_method] = (acc[item.recovery_method] || 0) + 1;
+              return acc;
+          }, {});
+
+          const topThreeMethods = Object.entries(recoveryCount)
+              .sort((a, b) => b[1] - a[1])  // Sort by count descending
+              .slice(0, 3)
+              .map(([method, count]) => ({ method, count }));
+
+          results[part] = topThreeMethods;
+      }
+
+      return results;
+  } catch (err) {
+      console.error('Unexpected error:', err);
+      return {};
+  }
 }
 
-countMuscleGroupsAndRecoveryMethods();
+
+
+function RecoveryScreen({ route, navigation }) {
+  const { partsPressed } = route.params || { partsPressed: [] };
+  const [recoveryMethods, setRecoveryMethods] = useState({});
+
+  useEffect(() => {
+    console.log("partsPressed changed:", partsPressed);
+    fetchTopRecoveryMethodsForParts(partsPressed)
+        .then(setRecoveryMethods)
+        .catch(err => {
+            console.error('Failed to fetch recovery methods:', err);
+            setRecoveryMethods({});
+        });
+  }, [partsPressed]);
+
+  return (
+      <View style={styles.container}>
+          <Text>Top Recovery Methods for Selected Muscle Groups</Text>
+          {Object.keys(recoveryMethods).length > 0 ? (
+              Object.entries(recoveryMethods).map(([part, methods]) => (
+                  <View key={part}>
+                      <Text style={styles.partTitle}>{part}:</Text>
+                      {methods.map((method, index) => (
+                          <Text key={index}>{method.method} - Counted {method.count} times</Text>
+                      ))}
+                  </View>
+              ))
+          ) : (
+              <Text>No recovery methods to display.</Text>
+          )}
+          <Button title="Go Back" onPress={() => navigation.goBack()} />
+      </View>
+  );
+}
 
 let partsPressed = [];
 
@@ -45,9 +87,9 @@ function HomeScreen({ navigation }) {
     const [imageSource, setImageSource] = useState(require('./assets/humanPicture.png'));
 
     const handleRecovery = () => {
-        console.log('Recovery list');
-        navigation.navigate('Recovery');
-    };
+      console.log('Attempting to navigate to Recovery');
+      navigation.navigate('Recovery', { partsPressed });
+  };
 
     function addOrRemoveBodyPart(part) {
       let index = partsPressed.indexOf(part); // Check if the body part exists in the list
@@ -73,9 +115,9 @@ function HomeScreen({ navigation }) {
             <View style={styles.imageContainer}>
                 <Image source={imageSource} style={styles.image} resizeMode="contain" />
                 {/* FIX THIS SHIT IT DOESNT GO BACK TO THE ORIGINAL IMAGE */}
-                <TouchableOpacity style={styles.rightBicep} onPress={() => setImageSource(require('./assets/humanPicture2.png'), addOrRemoveBodyPart("Biceps"))} />
+                <TouchableOpacity style={styles.rightBicep} onPress={() => setImageSource(require('./assets/humanPicture2.png'), addOrRemoveBodyPart("Arms"))} />
                 <TouchableOpacity style={styles.chest} onPress={() => addOrRemoveBodyPart("Chest")} />
-                <TouchableOpacity style={styles.abs} onPress={() => addOrRemoveBodyPart("Abs")} />
+                <TouchableOpacity style={styles.abs} onPress={() => addOrRemoveBodyPart("Core")} />
                 <TouchableOpacity style={styles.recovery} onPress={handleRecovery}>
                     <Text style={styles.buttonText}>Recovery</Text>
                 </TouchableOpacity>
@@ -85,13 +127,6 @@ function HomeScreen({ navigation }) {
     );
 }
 
-function RecoveryScreen({ navigation }) {
-    return (
-        <View style={styles.container}>
-            <Text>Recovery</Text>
-        </View>
-    );
-}
 
 function SettingsScreen() {
     return (
@@ -227,5 +262,10 @@ const styles = StyleSheet.create({
     position: 'absolute', // Position the text absolutely
     top: 20, // Adjust the distance from the top
     left: 20, // Adjust the distance from the left
+  },
+  partTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 20,
   }
 });
