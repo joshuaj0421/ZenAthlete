@@ -4,162 +4,105 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, Button } from '
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
+
 
 const supabaseUrl = 'https://ikbcsybkxkhxqwngczum.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrYmNzeWJreGtoeHF3bmdjenVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI5NzE5NjUsImV4cCI6MjAyODU0Nzk2NX0.3PsDDeA0eDU3654oOrkx8nujxEZQW66EGu7ZvwGwgJ4';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function countMuscleGroupsAndRecoveryMethods() {
-  try {
-      // Fetch all combinations of muscle_group and recovery_method
-      const { data, error } = await supabase
-          .from('users')
-          .select('muscle_group, recovery_method');
-
-      if (error) {
-          console.error('Error:', error);
-          return;
-      }
-
-      // Use a map to count combinations
-      const countMap = new Map();
-      data.forEach(item => {
-          const key = `${item.muscle_group}:${item.recovery_method}`;
-          if (countMap.has(key)) {
-              countMap.set(key, countMap.get(key) + 1);
-          } else {
-              countMap.set(key, 1);
-          }
-      });
-
-      // Convert the map to an array of objects to see the results more clearly
-      const result = Array.from(countMap, ([key, value]) => {
-          const [muscle_group, recovery_method] = key.split(':');
-          return { muscle_group, recovery_method, count: value };
-      });
-
-      console.log('Count of each muscle group and recovery method combination:', result);
-  } catch (err) {
-      console.error('Unexpected error:', err);
-  }
+    try {
+        const { data, error } = await supabase.from('users').select('muscle_group, recovery_method');
+        if (error) {
+            console.error('Error:', error);
+            return;
+        }
+        const countMap = new Map();
+        data.forEach(item => {
+            const key = `${item.muscle_group}:${item.recovery_method}`;
+            if (countMap.has(key)) {
+                countMap.set(key, countMap.get(key) + 1);
+            } else {
+                countMap.set(key, 1);
+            }
+        });
+        const result = Array.from(countMap, ([key, value]) => {
+            const [muscle_group, recovery_method] = key.split(':');
+            return { muscle_group, recovery_method, count: value };
+        });
+        console.log('Count of each muscle group and recovery method combination:', result);
+    } catch (err) {
+        console.error('Unexpected error:', err);
+    }
 }
 
 countMuscleGroupsAndRecoveryMethods();
 
 let partsPressed = [];
 
-function HomeScreen() {
-  const [imageSource, setImageSource] = useState(require('./assets/humanPicture.png'));
-  const [showButtons, setShowButtons] = useState(false);  // New state for controlling button visibility
+function HomeScreen({ navigation }) {
+    const [imageSource, setImageSource] = useState(require('./assets/humanPicture.png'));
 
-  const handleBicepPress = () => {
-    console.log('Bicep pressed');
-    // Toggle the image source
-    const nextImage = imageSource === require('./assets/humanPicture.png')
-      ? require('./assets/humanPicture2.png')
-      : require('./assets/humanPicture.png');
-    setImageSource(nextImage);
-    addOrRemoveBodyPart('Bicep');
-  };
+    const handleRecovery = () => {
+        console.log('Recovery list');
+        navigation.navigate('Recovery');
+    };
 
-  const handleChestPress = () => {
-    console.log('Chest pressed');
-    addOrRemoveBodyPart('Chest');
-  }
-
-  const handleAbPress = () => {
-    console.log('Abs pressed');
-    addOrRemoveBodyPart('Abs');
-  }
-
-  const handleRecovery = () => {
-    console.log('Recovery list')
-  }
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.selectedText}>Selected</Text>
-      <View style={styles.imageContainer}>
-        <Image
-          source={imageSource}
-          style={styles.image}
-          resizeMode="contain"
-        />
-        {/* Touchable area for the right bicep, toggles buttons */}
-        <TouchableOpacity
-          style={styles.rightBicep}
-          onPress={handleBicepPress}
-        />
-        {/* Other touchable areas change the image */}
-        <TouchableOpacity
-          style={styles.leftBicep}
-          onPress={handleBicepPress}
-        />
-        <TouchableOpacity
-          style={styles.chest}
-          onPress={handleChestPress}
-        />
-        <TouchableOpacity
-          style={styles.abs}
-          onPress={handleAbPress}
-        />
-        <TouchableOpacity
-          style={styles.recovery}
-          onPress={handleRecovery}
-        >
-          <Text style={styles.buttonText}>Recovery</Text>
-        </TouchableOpacity>
-      </View>
-      {/* Conditional rendering of buttons based on state */}
-      {showButtons && (
-        <View style={styles.buttonsContainer}>
-          <Button title="Button 1" onPress={() => Alert.alert('Button 1 pressed')} />
-          <Button title="Button 2" onPress={() => Alert.alert('Button 2 pressed')} />
-          <Button title="Button 3" onPress={() => Alert.alert('Button 3 pressed')} />
+    return (
+        <View style={styles.container}>
+            <Text style={styles.selectedText}>Selected</Text>
+            <View style={styles.imageContainer}>
+                <Image source={imageSource} style={styles.image} resizeMode="contain" />
+                <TouchableOpacity style={styles.rightBicep} onPress={() => setImageSource(require('./assets/humanPicture2.png'))} />
+                <TouchableOpacity style={styles.chest} onPress={() => console.log('Chest pressed')} />
+                <TouchableOpacity style={styles.abs} onPress={() => console.log('Abs pressed')} />
+                <TouchableOpacity style={styles.recovery} onPress={handleRecovery}>
+                    <Text style={styles.buttonText}>Recovery</Text>
+                </TouchableOpacity>
+            </View>
+            <StatusBar style="auto" />
         </View>
-      )}
-      <StatusBar style="auto" />
-    </View>
-  );
+    );
 }
 
-function addOrRemoveBodyPart(part) {
-  let index = partsPressed.indexOf(part); // Check if the body part exists in the list
-
-  if (index !== -1) {
-    // If the body part exists, remove it
-    partsPressed.splice(index, 1);
-  } else {
-    // If the body part doesn't exist, add it
-    partsPressed.push(part);
-  }
-  displayParts();
+function RecoveryScreen({ navigation }) {
+    return (
+        <View style={styles.container}>
+            <Text>Recovery</Text>
+        </View>
+    );
 }
-
-function displayParts(){
-  
-}
-
 
 function SettingsScreen() {
-  return (
-    <View style={styles.container}>
-      <Text>History</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    return (
+        <View style={styles.container}>
+            <Text>History</Text>
+            <StatusBar style="auto" />
+        </View>
+    );
 }
 
+const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+function HomeStackScreen() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="Recovery" component={RecoveryScreen} />
+        </Stack.Navigator>
+    );
+}
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator>
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="History" component={SettingsScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
+      <NavigationContainer>
+          <Tab.Navigator screenOptions={{ headerShown: false }}>
+              <Tab.Screen name="Home" component={HomeStackScreen} />
+              <Tab.Screen name="History" component={SettingsScreen} />
+          </Tab.Navigator>
+      </NavigationContainer>
   );
 }
 
@@ -241,6 +184,14 @@ const styles = StyleSheet.create({
     color: 'white', // Text color
     fontSize: 18, // Adjust the font size as needed
     fontWeight: 'bold', // Make the text bold
+  },
+  bicepSelected: {
+    fontSize: 24, // Adjust the font size as needed
+    fontWeight: 'bold', // Make the text bold
+    marginBottom: 20, // Optional spacing
+    position: 'absolute', // Position the text absolutely
+    top: 20, // Adjust the distance from the top
+    left: 150, // Adjust the distance from the left
   },
   selectedText: {
     fontSize: 24, // Adjust the font size as needed
