@@ -1,8 +1,50 @@
+import { createClient } from '@supabase/supabase-js';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert , Button} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+const supabaseUrl = 'https://ikbcsybkxkhxqwngczum.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrYmNzeWJreGtoeHF3bmdjenVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI5NzE5NjUsImV4cCI6MjAyODU0Nzk2NX0.3PsDDeA0eDU3654oOrkx8nujxEZQW66EGu7ZvwGwgJ4';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+async function countMuscleGroupsAndRecoveryMethods() {
+  try {
+      // Fetch all combinations of muscle_group and recovery_method
+      const { data, error } = await supabase
+          .from('users')
+          .select('muscle_group, recovery_method');
+
+      if (error) {
+          console.error('Error:', error);
+          return;
+      }
+
+      // Use a map to count combinations
+      const countMap = new Map();
+      data.forEach(item => {
+          const key = `${item.muscle_group}:${item.recovery_method}`;
+          if (countMap.has(key)) {
+              countMap.set(key, countMap.get(key) + 1);
+          } else {
+              countMap.set(key, 1);
+          }
+      });
+
+      // Convert the map to an array of objects to see the results more clearly
+      const result = Array.from(countMap, ([key, value]) => {
+          const [muscle_group, recovery_method] = key.split(':');
+          return { muscle_group, recovery_method, count: value };
+      });
+
+      console.log('Count of each muscle group and recovery method combination:', result);
+  } catch (err) {
+      console.error('Unexpected error:', err);
+  }
+}
+
+countMuscleGroupsAndRecoveryMethods();
 
 function HomeScreen() {
   const [imageSource, setImageSource] = useState(require('./assets/humanPicture.png'));
