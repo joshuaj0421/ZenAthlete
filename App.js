@@ -49,14 +49,33 @@ function HomeScreen({ navigation }) {
         navigation.navigate('Recovery');
     };
 
+    function addOrRemoveBodyPart(part) {
+      let index = partsPressed.indexOf(part); // Check if the body part exists in the list
+      console.log(`${part} pressed`);
+      if (index !== -1) {
+        // If the body part exists, remove it
+        partsPressed.splice(index, 1);
+      } else {
+        // If the body part doesn't exist, add it
+        partsPressed.push(part);
+      }
+      displayParts();
+    }
+
+    function displayParts(){
+      const partsString = partsPressed.join(', '); // Join the parts with a comma and space
+      console.log('Pressed Parts:', partsString); // Log the joined string
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.selectedText}>Selected</Text>
             <View style={styles.imageContainer}>
                 <Image source={imageSource} style={styles.image} resizeMode="contain" />
-                <TouchableOpacity style={styles.rightBicep} onPress={() => setImageSource(require('./assets/humanPicture2.png'))} />
-                <TouchableOpacity style={styles.chest} onPress={() => console.log('Chest pressed')} />
-                <TouchableOpacity style={styles.abs} onPress={() => console.log('Abs pressed')} />
+                {/* FIX THIS SHIT IT DOESNT GO BACK TO THE ORIGINAL IMAGE */}
+                <TouchableOpacity style={styles.rightBicep} onPress={() => setImageSource(require('./assets/humanPicture2.png'), addOrRemoveBodyPart("Biceps"))} />
+                <TouchableOpacity style={styles.chest} onPress={() => addOrRemoveBodyPart("Chest")} />
+                <TouchableOpacity style={styles.abs} onPress={() => addOrRemoveBodyPart("Abs")} />
                 <TouchableOpacity style={styles.recovery} onPress={handleRecovery}>
                     <Text style={styles.buttonText}>Recovery</Text>
                 </TouchableOpacity>
