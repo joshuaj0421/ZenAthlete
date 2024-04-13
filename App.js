@@ -200,5 +200,13 @@ const styles = StyleSheet.create({
     position: 'absolute', // Position the text absolutely
     top: 20, // Adjust the distance from the top
     left: 150, // Adjust the distance from the left
+  },
+  partsText: {
+    fontSize: 14, // Adjust the font size as needed
+    fontWeight: 'bold', // Make the text bold
+    marginBottom: 20, // Optional spacing
+    position: 'absolute', // Position the text absolutely
+    top: 20, // Adjust the distance from the top
+    left: 20, // Adjust the distance from the left
   }
 });
