@@ -35,7 +35,7 @@ async function fetchTopRecoveryMethodsForParts(parts) {
       results[part] = Object.entries(recoveryCount).map(([method, { count, description }]) => ({
         method,
         count,
-        description  // Now including description from predefined object
+        description
       })).sort((a, b) => b.count - a.count).slice(0, 3);
     }
     return results;
@@ -133,7 +133,6 @@ function LoginScreen({ navigation }) {
           navigation.navigate('Home', { userId, name: data.name });
         }, 1000);
       } else {
-        // No user found, prompt to enter name
         Alert.prompt(
           'New User',
           'Enter your name:',
@@ -155,7 +154,7 @@ function LoginScreen({ navigation }) {
       console.error('Unexpected error:', error);
       alert('An unexpected error occurred.');
     } finally {
-      setLoading(false); // Ensures loading is always turned off
+      setLoading(false);
     }
   };
 
@@ -183,7 +182,7 @@ function LoginScreen({ navigation }) {
       console.error('Unexpected error when creating user:', error);
       alert('An unexpected error occurred while creating user.');
     } finally {
-      setLoading(false); // Ensures loading is always turned off
+      setLoading(false);
     }
   };
 
@@ -230,7 +229,6 @@ function HomeScreen({ route, navigation }) {
 
   const handleBicepPress = () => {
     console.log('Bicep pressed');
-    // Toggle the image source
     let nextImage;
     if (imageSource === require('./assets/humanPicture.png')) {
       nextImage = require('./assets/humanPicture2.png');
@@ -262,14 +260,12 @@ function HomeScreen({ route, navigation }) {
   };
 
   function addOrRemoveBodyPart(part) {
-    let index = partsPressed.indexOf(part); // Check if the body part exists in the list
+    let index = partsPressed.indexOf(part);
     console.log(`${part} pressed`);
     if (index !== -1) {
-      // If the body part exists, remove it
       partsPressed.splice(index, 1);
       shift = shift - 25;
     } else {
-      // If the body part doesn't exist, add it
       partsPressed.push(part);
       shift = shift + 25;
     }
@@ -278,8 +274,8 @@ function HomeScreen({ route, navigation }) {
   }
 
   function displayParts() {
-    const partsString = partsPressed.join(', '); // Join the parts with a comma and space
-    console.log('Pressed Parts:', partsString); // Log the joined string
+    const partsString = partsPressed.join(', ');
+    console.log('Pressed Parts:', partsString);
     setSelectedParts(partsString);
   }
 
@@ -458,100 +454,100 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   imageContainer: {
-    width: 500, // The same as your image width
-    height: 1000, // The same as your image height
+    width: 500,
+    height: 1000,
     position: 'relative',
   },
   image: {
-    width: 500, // Adjust the width as needed
-    height: 1000, // Adjust the height as needed
-    marginBottom: 20, // Optional spacing
+    width: 500,
+    height: 1000,
+    marginBottom: 20,
   },
   rightBicep: {
     position: 'absolute',
-    top: 380, // Adjust this to move the button over the bicep
-    left: 295, // Adjust this to align with the bicep horizontally
-    width: 50, // Width of the tappable area
-    height: 40, // Height of the tappable area
-    backgroundColor: 'rgba(255, 255, 255, 0)', // Changed to green for better visibility
+    top: 380,
+    left: 295,
+    width: 50,
+    height: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   leftBicep: {
     position: 'absolute',
-    top: 380, // Adjust this to move the button over the bicep
-    left: 150, // Adjust this to align with the bicep horizontally
-    width: 50, // Width of the tappable area
-    height: 40, // Height of the tappable area
-    backgroundColor: 'rgba(255, 255, 255, 0)', // Changed to green for better visibility
+    top: 380,
+    left: 150,
+    width: 50,
+    height: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   chest: {
     position: 'absolute',
-    top: 380, // Adjust this to move the button over the bicep
-    left: 210, // Adjust this to align with the bicep horizontally
-    width: 75, // Width of the tappable area
-    height: 60, // Height of the tappable area
-    backgroundColor: 'rgba(255, 255, 255, 0)', // Changed to green for better visibility
+    top: 380,
+    left: 210, 
+    width: 75,
+    height: 60, 
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonsContainer: {
-    width: '100%', // Take the full width of the screen
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20, // Add some margin at the top to separate from the image
+    marginTop: 20,
   },
   abs: {
     position: 'absolute',
-    top: 440, // Adjust this to move the button over the bicep
-    left: 215, // Adjust this to align with the bicep horizontally
-    width: 70, // Width of the tappable area
-    height: 60, // Height of the tappable area
-    backgroundColor: 'rgba(0, 0, 0, 0)', // Changed to green for better visibility
+    top: 440,
+    left: 215,
+    width: 70,
+    height: 60,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   recovery: {
     position: 'absolute',
-    top: 740, // Adjust this to move the button over the bicep
-    left: 165, // Adjust this to align with the bicep horizontally
-    width: 170, // Width of the tappable area
-    height: 60, // Height of the tappable area
+    top: 740,
+    left: 165,
+    width: 170,
+    height: 60,
     borderRadius: 25,
-    backgroundColor: 'rgba(12, 125, 125, 0.5)', // Changed to green for better visibility
+    backgroundColor: 'rgba(12, 125, 125, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white', // Text color
-    fontSize: 18, // Adjust the font size as needed
-    fontWeight: 'bold', // Make the text bold
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold', 
   },
   bicepSelected: {
-    fontSize: 24, // Adjust the font size as needed
-    fontWeight: 'bold', // Make the text bold
-    marginBottom: 20, // Optional spacing
-    position: 'absolute', // Position the text absolutely
-    top: 20, // Adjust the distance from the top
-    left: 150, // Adjust the distance from the left
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    position: 'absolute',
+    top: 20,
+    left: 150,
   },
   selectedText: {
-    fontSize: 24, // Adjust the font size as needed
-    fontWeight: 'bold', // Make the text bold
-    marginBottom: 20, // Optional spacing
-    position: 'absolute', // Position the text absolutely
-    top: 20, // Adjust the distance from the top
-    left: 150, // Adjust the distance from the left
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    marginBottom: 20,
+    position: 'absolute',
+    top: 20,
+    left: 150,
   },
   partsText: {
-    fontSize: 18, // Adjust the font size as needed
-    fontWeight: 'bold', // Make the text bold
-    marginBottom: 20, // Optional spacing
-    position: 'absolute', // Position the text absolutely
-    top: 50, // Adjust the distance from the top
-    left: '50%', // Adjust the distance from the left
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20, 
+    position: 'absolute',
+    top: 50, 
+    left: '50%',
     textAlign: 'center',
   },
   partTitle: {
@@ -585,14 +581,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgb(250, 250, 250)',
-    paddingTop: 50,  // Increased padding at the top
-    paddingHorizontal: 20,  // Maintain some horizontal padding for aesthetics
+    paddingTop: 50,  
+    paddingHorizontal: 20, 
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,  // Maintain bottom margin for spacing from content below
-    textAlign: 'center',  // Ensure title is centered
+    marginBottom: 20, 
+    textAlign: 'center', 
   },
   descriptionContainer: {
     backgroundColor: 'white',
@@ -603,20 +599,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
     elevation: 3,
-    width: '90%',  // Set width relative to screen size
+    width: '90%', 
   },
   descriptionTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 10,
-    textAlign: 'center',  // Centers the text within the 'descriptionTitle' container
+    textAlign: 'center', 
   },
   descriptionText: {
     fontSize: 16,
     lineHeight: 24,
     color: '#666',
-    textAlign: 'justify',  // Justifies the text for better readability
+    textAlign: 'justify',
   },
   centeredContainer: {
     flex: 1,
@@ -653,8 +649,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,  // Maintain bottom margin for spacing from content below
-    textAlign: 'center',  // Ensure title is centered
+    marginBottom: 20, 
+    textAlign: 'center',
     paddingTop: 50,
   },
 });
