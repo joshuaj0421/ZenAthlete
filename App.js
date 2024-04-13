@@ -138,7 +138,7 @@ function LoginScreen({ navigation }) {
         setUserName(data.name);
         setTimeout(() => {
           navigation.navigate('Home', { userId, name: data.name });
-        }, 1500);
+        }, 1000);
       } else {
         // No user found, prompt to enter name
         Alert.prompt(
