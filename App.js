@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { ScrollView } from 'react-native';
 
 
 const supabaseUrl = 'https://ikbcsybkxkhxqwngczum.supabase.co';
@@ -356,20 +357,20 @@ function SettingsScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <Text>
-        <Text style={styles.title}>User Recovery History</Text> {/* Changed text here */}
-      </Text>
-      {historyData.length > 0 ? (
-        historyData.map((item, index) => (
-          <View key={index} style={styles.historyItem}>
-            <Text>Muscle Group: {item.muscle_group}</Text>
-            <Text>Recovery Method: {item.recovery_method}</Text>
-          </View>
-        ))
-      ) : (
-        <Text>No history data available.</Text>
-      )}
+    <View style={styles.centeredContainer}>
+      <Text style={styles.title}>User Recovery History</Text>
+      <ScrollView style={styles.scrollView}>
+        {historyData.length > 0 ? (
+          historyData.map((item, index) => (
+            <View key={index} style={styles.historyItem}>
+              <Text style={styles.historyText}>Muscle Group: {item.muscle_group}</Text>
+              <Text style={styles.historyText}>Recovery Method: {item.recovery_method}</Text>
+            </View>
+          ))
+        ) : (
+          <Text style={styles.descriptionText}>No history data available.</Text>
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -406,9 +407,9 @@ function RecoveryMethodDescriptionScreen({ route }) {
   const { part, method, description } = route.params;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{method}</Text>
-      <Text style={styles.description}>{description}</Text>
+    <View style={styles.methodCard}>
+      <Text style={styles.partTitle}>{method}</Text>
+      <Text style={styles.descriptionContainer}>{description}</Text>
     </View>
   );
 }
@@ -445,6 +446,35 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  descriptionContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+    justifyContent: 'center',
+    width: '90%',  // Set width relative to screen size
+  },
+  methodCard: {
+    backgroundColor: '#F0F0F0',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+    borderWidth: 1,  // Add a border width
+    borderColor: '#D0D0D0',  // Define the color of the border
+    justifyContent: 'center',
+  },
+  partTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+    marginRight: '50%',
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: 'rgb(250, 250, 250)',
@@ -452,115 +482,106 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   imageContainer: {
-    width: 500, // The same as your image width
-    height: 1000, // The same as your image height
+    width: 500,
+    height: 1000,
     position: 'relative',
   },
   image: {
-    width: 500, // Adjust the width as needed
-    height: 1000, // Adjust the height as needed
-    marginBottom: 20, // Optional spacing
+    width: 500,
+    height: 1000,
+    marginBottom: 20,
   },
   rightBicep: {
     position: 'absolute',
-    top: 380, // Adjust this to move the button over the bicep
-    left: 295, // Adjust this to align with the bicep horizontally
-    width: 50, // Width of the tappable area
-    height: 40, // Height of the tappable area
-    backgroundColor: 'rgba(255, 255, 255, 0)', // Changed to green for better visibility
+    top: 380,
+    left: 295,
+    width: 50,
+    height: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   leftBicep: {
     position: 'absolute',
-    top: 380, // Adjust this to move the button over the bicep
-    left: 150, // Adjust this to align with the bicep horizontally
-    width: 50, // Width of the tappable area
-    height: 40, // Height of the tappable area
-    backgroundColor: 'rgba(255, 255, 255, 0)', // Changed to green for better visibility
+    top: 380,
+    left: 150,
+    width: 50,
+    height: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   chest: {
     position: 'absolute',
-    top: 380, // Adjust this to move the button over the bicep
-    left: 210, // Adjust this to align with the bicep horizontally
-    width: 75, // Width of the tappable area
-    height: 60, // Height of the tappable area
-    backgroundColor: 'rgba(255, 255, 255, 0)', // Changed to green for better visibility
+    top: 380,
+    left: 210, 
+    width: 75,
+    height: 60, 
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonsContainer: {
-    width: '100%', // Take the full width of the screen
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20, // Add some margin at the top to separate from the image
+    marginTop: 20,
   },
   abs: {
     position: 'absolute',
-    top: 440, // Adjust this to move the button over the bicep
-    left: 215, // Adjust this to align with the bicep horizontally
-    width: 70, // Width of the tappable area
-    height: 60, // Height of the tappable area
-    backgroundColor: 'rgba(0, 0, 0, 0)', // Changed to green for better visibility
+    top: 440,
+    left: 215,
+    width: 70,
+    height: 60,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   recovery: {
     position: 'absolute',
-    top: 740, // Adjust this to move the button over the bicep
-    left: 165, // Adjust this to align with the bicep horizontally
-    width: 170, // Width of the tappable area
-    height: 60, // Height of the tappable area
+    top: 740,
+    left: 165,
+    width: 170,
+    height: 60,
     borderRadius: 25,
-    backgroundColor: 'rgba(12, 125, 125, 0.5)', // Changed to green for better visibility
+    backgroundColor: 'rgba(12, 125, 125, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white', // Text color
-    fontSize: 18, // Adjust the font size as needed
-    fontWeight: 'bold', // Make the text bold
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold', 
   },
   bicepSelected: {
-    fontSize: 24, // Adjust the font size as needed
-    fontWeight: 'bold', // Make the text bold
-    marginBottom: 20, // Optional spacing
-    position: 'absolute', // Position the text absolutely
-    top: 20, // Adjust the distance from the top
-    left: 150, // Adjust the distance from the left
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    position: 'absolute',
+    top: 20,
+    left: 150,
   },
   selectedText: {
-    fontSize: 24, // Adjust the font size as needed
-    fontWeight: 'bold', // Make the text bold
-    marginBottom: 20, // Optional spacing
-    position: 'absolute', // Position the text absolutely
-    top: 20, // Adjust the distance from the top
-    left: 150, // Adjust the distance from the left
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    marginBottom: 20,
+    position: 'absolute',
+    top: 20,
+    left: 150,
   },
   partsText: {
-    fontSize: 18, // Adjust the font size as needed
-    fontWeight: 'bold', // Make the text bold
-    marginBottom: 20, // Optional spacing
-    position: 'absolute', // Position the text absolutely
-    top: 50, // Adjust the distance from the top
-    left: '50%', // Adjust the distance from the left
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20, 
+    position: 'absolute',
+    top: 50, 
+    left: '50%',
     textAlign: 'center',
   },
   partTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 24, // Adjust font size as needed
-    fontWeight: 'bold', // Make the text bold
   },
   description: {
     fontSize: 18,
@@ -582,5 +603,82 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     width: '80%',
+  },
+  centeredContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgb(250, 250, 250)',
+    paddingTop: 50,  
+    paddingHorizontal: 20, 
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20, 
+    textAlign: 'center', 
+  },
+  descriptionContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+    width: '90%', 
+  },
+  descriptionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+    textAlign: 'center', 
+  },
+  descriptionText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#666',
+    textAlign: 'justify',
+  },
+  centeredContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgb(250, 250, 250)',
+    padding: 20,
+  },
+  scrollViewContainer: {
+    width: '100%',
+  },
+  historyItem: {
+    backgroundColor: 'white',
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  historyText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  descriptionText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20, 
+    textAlign: 'center',
+    paddingTop: 50,
   },
 });
