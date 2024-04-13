@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   },
   partsText: {
     fontSize: 18, // Adjust the font size as needed
-    fontWeight: '', // Make the text bold
+    fontWeight: 'bold', // Make the text bold
     marginBottom: 20, // Optional spacing
     position: 'absolute', // Position the text absolutely
     top: 50, // Adjust the distance from the top
