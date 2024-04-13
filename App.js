@@ -97,6 +97,7 @@ function RecoveryScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Top Recovery Methods for Selected Muscle Groups</Text>
+      <ScrollView style={styles.scrollView}>
       {Object.keys(recoveryMethods).length > 0 ? (
         Object.entries(recoveryMethods).map(([part, methods]) => (
           <View key={part} style={styles.card}>
@@ -114,6 +115,7 @@ function RecoveryScreen({ route, navigation }) {
       ) : (
         <Text style={styles.placeholder}>No recovery methods to display.</Text>
       )}
+      </ScrollView>
     </View>
   );
 }
