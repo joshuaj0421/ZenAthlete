@@ -95,11 +95,30 @@ function HomeScreen({ navigation }) {
   const handleBicepPress = () => {
     console.log('Bicep pressed');
     // Toggle the image source
-    const nextImage = imageSource === require('./assets/humanPicture.png')
-      ? require('./assets/humanPicture2.png')
-      : require('./assets/humanPicture.png');
+    let nextImage;
+    if(imageSource === require('./assets/humanPicture.png')){
+      nextImage = require('./assets/humanPicture2.png');
+    }else if(imageSource === require('./assets/humanPicture2.png')){
+      nextImage = require('./assets/humanPicture.png');
+    }else{
+      nextImage = require('./assets/humanPicture3.png');
+    }
     setImageSource(nextImage);
     addOrRemoveBodyPart('Bicep');
+  };
+
+  const handleChestPress = () => {
+    console.log('Chest pressed');
+    // Toggle the image source
+    if(imageSource === require('./assets/humanPicture4.png')){
+      nextImage = require('./assets/humanPicture.png');
+    }else if(imageSource === require('./assets/humanPicture.png')){
+      nextImage = require('./assets/humanPicture4.png');
+    }else{
+      nextImage = require('./assets/humanPicture3.png');
+    }
+    setImageSource(nextImage);
+    addOrRemoveBodyPart('Chest');
   };
 
   function addOrRemoveBodyPart(part) {
@@ -129,7 +148,7 @@ function HomeScreen({ navigation }) {
         <Image source={imageSource} style={styles.image} resizeMode="contain" />
         {/* FIX THIS SHIT IT DOESNT GO BACK TO THE ORIGINAL IMAGE */}
         <TouchableOpacity style={styles.rightBicep} onPress={() => handleBicepPress()} />
-        <TouchableOpacity style={styles.chest} onPress={() => addOrRemoveBodyPart("Chest")} />
+        <TouchableOpacity style={styles.chest} onPress={() => handleChestPress()} />
         <TouchableOpacity style={styles.abs} onPress={() => addOrRemoveBodyPart("Core")} />
         <TouchableOpacity style={styles.recovery} onPress={handleRecovery}>
           <Text style={styles.buttonText}>Recovery</Text>
