@@ -118,6 +118,7 @@ function RecoveryScreen({ route, navigation }) {
 }
 
 let partsPressed = [];
+let shift = 0;
 
 function HomeScreen({ navigation }) {
   const [imageSource, setImageSource] = useState(require('./assets/humanPicture.png'));
@@ -167,10 +168,13 @@ function HomeScreen({ navigation }) {
     if (index !== -1) {
       // If the body part exists, remove it
       partsPressed.splice(index, 1);
+      shift = shift - 25;
     } else {
       // If the body part doesn't exist, add it
       partsPressed.push(part);
+      shift = shift + 25;
     }
+    console.log(shift);
     displayParts();
   }
 
@@ -182,7 +186,7 @@ function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.partsText}>{selectedParts}</Text>
+      <Text style={[styles.partsText, { transform: [{ translateX: -shift }] }]}>{selectedParts}</Text>
       <Text style={styles.selectedText}>Selected</Text>
       <View style={styles.imageContainer}>
         <Image source={imageSource} style={styles.image} resizeMode="contain" />
@@ -356,7 +360,6 @@ const styles = StyleSheet.create({
     position: 'absolute', // Position the text absolutely
     top: 50, // Adjust the distance from the top
     left: '50%', // Adjust the distance from the left
-    transform: [{ translateX: -50 }],
     textAlign: 'center',
   },
   partTitle: {
