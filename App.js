@@ -13,35 +13,35 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function fetchTopRecoveryMethodsForParts(parts) {
   try {
-      const results = {};
-      for (const part of parts) {
-          const { data, error } = await supabase
-              .from('users')
-              .select('recovery_method')
-              .eq('muscle_group', part);
+    const results = {};
+    for (const part of parts) {
+      const { data, error } = await supabase
+        .from('users')
+        .select('recovery_method')
+        .eq('muscle_group', part);
 
-          if (error) {
-              console.error(`Error fetching recovery methods for ${part}:`, error);
-              continue;  // Skip to the next part if there's an error
-          }
-
-          const recoveryCount = data.reduce((acc, item) => {
-              acc[item.recovery_method] = (acc[item.recovery_method] || 0) + 1;
-              return acc;
-          }, {});
-
-          const topThreeMethods = Object.entries(recoveryCount)
-              .sort((a, b) => b[1] - a[1])  // Sort by count descending
-              .slice(0, 3)
-              .map(([method, count]) => ({ method, count }));
-
-          results[part] = topThreeMethods;
+      if (error) {
+        console.error(`Error fetching recovery methods for ${part}:`, error);
+        continue;  // Skip to the next part if there's an error
       }
 
-      return results;
+      const recoveryCount = data.reduce((acc, item) => {
+        acc[item.recovery_method] = (acc[item.recovery_method] || 0) + 1;
+        return acc;
+      }, {});
+
+      const topThreeMethods = Object.entries(recoveryCount)
+        .sort((a, b) => b[1] - a[1])  // Sort by count descending
+        .slice(0, 3)
+        .map(([method, count]) => ({ method, count }));
+
+      results[part] = topThreeMethods;
+    }
+
+    return results;
   } catch (err) {
-      console.error('Unexpected error:', err);
-      return {};
+    console.error('Unexpected error:', err);
+    return {};
   }
 }
 
@@ -54,109 +54,122 @@ function RecoveryScreen({ route, navigation }) {
   useEffect(() => {
     console.log("partsPressed changed:", partsPressed);
     fetchTopRecoveryMethodsForParts(partsPressed)
-        .then(setRecoveryMethods)
-        .catch(err => {
-            console.error('Failed to fetch recovery methods:', err);
-            setRecoveryMethods({});
-        });
+      .then(setRecoveryMethods)
+      .catch(err => {
+        console.error('Failed to fetch recovery methods:', err);
+        setRecoveryMethods({});
+      });
   }, [partsPressed]);
 
   return (
-      <View style={styles.container}>
-          <Text>Top Recovery Methods for Selected Muscle Groups</Text>
-          {Object.keys(recoveryMethods).length > 0 ? (
-              Object.entries(recoveryMethods).map(([part, methods]) => (
-                  <View key={part}>
-                      <Text style={styles.partTitle}>{part}:</Text>
-                      {methods.map((method, index) => (
-                          <Text key={index}>{method.method} - Counted {method.count} times</Text>
-                      ))}
-                  </View>
-              ))
-          ) : (
-              <Text>No recovery methods to display.</Text>
-          )}
-          <Button title="Go Back" onPress={() => navigation.goBack()} />
-      </View>
+    <View style={styles.container}>
+      <Text>Top Recovery Methods for Selected Muscle Groups</Text>
+      {Object.keys(recoveryMethods).length > 0 ? (
+        Object.entries(recoveryMethods).map(([part, methods]) => (
+          <View key={part}>
+            <Text style={styles.partTitle}>{part}:</Text>
+            {methods.map((method, index) => (
+              <Text key={index}>{method.method} - Counted {method.count} times</Text>
+            ))}
+          </View>
+        ))
+      ) : (
+        <Text>No recovery methods to display.</Text>
+      )}
+      <Button title="Go Back" onPress={() => navigation.goBack()} />
+    </View>
   );
 }
 
 let partsPressed = [];
 
 function HomeScreen({ navigation }) {
-    const [imageSource, setImageSource] = useState(require('./assets/humanPicture.png'));
+  const [imageSource, setImageSource] = useState(require('./assets/humanPicture.png'));
+  const [selectedParts, setSelectedParts] = useState('');
 
-    const handleRecovery = () => {
-      console.log('Attempting to navigate to Recovery');
-      navigation.navigate('Recovery', { partsPressed });
+  const handleRecovery = () => {
+    console.log('Attempting to navigate to Recovery');
+    navigation.navigate('Recovery', { partsPressed });
   };
 
-    function addOrRemoveBodyPart(part) {
-      let index = partsPressed.indexOf(part); // Check if the body part exists in the list
-      console.log(`${part} pressed`);
-      if (index !== -1) {
-        // If the body part exists, remove it
-        partsPressed.splice(index, 1);
-      } else {
-        // If the body part doesn't exist, add it
-        partsPressed.push(part);
-      }
-      displayParts();
-    }
+  const handleBicepPress = () => {
+    console.log('Bicep pressed');
+    // Toggle the image source
+    const nextImage = imageSource === require('./assets/humanPicture.png')
+      ? require('./assets/humanPicture2.png')
+      : require('./assets/humanPicture.png');
+    setImageSource(nextImage);
+    addOrRemoveBodyPart('Bicep');
+  };
 
-    function displayParts(){
-      const partsString = partsPressed.join(', '); // Join the parts with a comma and space
-      console.log('Pressed Parts:', partsString); // Log the joined string
+  function addOrRemoveBodyPart(part) {
+    let index = partsPressed.indexOf(part); // Check if the body part exists in the list
+    console.log(`${part} pressed`);
+    if (index !== -1) {
+      // If the body part exists, remove it
+      partsPressed.splice(index, 1);
+    } else {
+      // If the body part doesn't exist, add it
+      partsPressed.push(part);
     }
+    displayParts();
+  }
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.selectedText}>Selected</Text>
-            <View style={styles.imageContainer}>
-                <Image source={imageSource} style={styles.image} resizeMode="contain" />
-                {/* FIX THIS SHIT IT DOESNT GO BACK TO THE ORIGINAL IMAGE */}
-                <TouchableOpacity style={styles.rightBicep} onPress={() => setImageSource(require('./assets/humanPicture2.png'), addOrRemoveBodyPart("Arms"))} />
-                <TouchableOpacity style={styles.chest} onPress={() => addOrRemoveBodyPart("Chest")} />
-                <TouchableOpacity style={styles.abs} onPress={() => addOrRemoveBodyPart("Core")} />
-                <TouchableOpacity style={styles.recovery} onPress={handleRecovery}>
-                    <Text style={styles.buttonText}>Recovery</Text>
-                </TouchableOpacity>
-            </View>
-            <StatusBar style="auto" />
-        </View>
-    );
+  function displayParts() {
+    const partsString = partsPressed.join(', '); // Join the parts with a comma and space
+    console.log('Pressed Parts:', partsString); // Log the joined string
+    setSelectedParts(partsString);
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.partsText}>{selectedParts}</Text>
+      <Text style={styles.selectedText}>Selected</Text>
+      <View style={styles.imageContainer}>
+        <Image source={imageSource} style={styles.image} resizeMode="contain" />
+        {/* FIX THIS SHIT IT DOESNT GO BACK TO THE ORIGINAL IMAGE */}
+        <TouchableOpacity style={styles.rightBicep} onPress={() => handleBicepPress()} />
+        <TouchableOpacity style={styles.chest} onPress={() => addOrRemoveBodyPart("Chest")} />
+        <TouchableOpacity style={styles.abs} onPress={() => addOrRemoveBodyPart("Core")} />
+        <TouchableOpacity style={styles.recovery} onPress={handleRecovery}>
+          <Text style={styles.buttonText}>Recovery</Text>
+        </TouchableOpacity>
+      </View>
+      <StatusBar style="auto" />
+    </View>
+  );
 }
 
 
 function SettingsScreen() {
-    return (
-        <View style={styles.container}>
-            <Text>History</Text>
-            <StatusBar style="auto" />
-        </View>
-    );
+  return (
+    <View style={styles.container}>
+      <Text>History</Text>
+      <StatusBar style="auto" />
+    </View>
+  );
 }
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function HomeStackScreen() {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Recovery" component={RecoveryScreen} />
-        </Stack.Navigator>
-    );
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Recovery" component={RecoveryScreen} />
+    </Stack.Navigator>
+  );
 }
 
 export default function App() {
   return (
-      <NavigationContainer>
-          <Tab.Navigator screenOptions={{ headerShown: false }}>
-              <Tab.Screen name="Home" component={HomeStackScreen} />
-              <Tab.Screen name="History" component={SettingsScreen} />
-          </Tab.Navigator>
-      </NavigationContainer>
+    <NavigationContainer>
+      <Tab.Navigator screenOptions={{ headerShown: false }}>
+        <Tab.Screen name="Home" component={HomeStackScreen} />
+        <Tab.Screen name="History" component={SettingsScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -256,12 +269,14 @@ const styles = StyleSheet.create({
     left: 150, // Adjust the distance from the left
   },
   partsText: {
-    fontSize: 14, // Adjust the font size as needed
-    fontWeight: 'bold', // Make the text bold
+    fontSize: 18, // Adjust the font size as needed
+    fontWeight: '', // Make the text bold
     marginBottom: 20, // Optional spacing
     position: 'absolute', // Position the text absolutely
-    top: 20, // Adjust the distance from the top
-    left: 20, // Adjust the distance from the left
+    top: 50, // Adjust the distance from the top
+    left: '50%', // Adjust the distance from the left
+    transform: [{ translateX: -50 }],
+    textAlign: 'center',
   },
   partTitle: {
     fontSize: 16,
